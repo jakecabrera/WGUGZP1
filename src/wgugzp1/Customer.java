@@ -16,6 +16,12 @@ public class Customer extends Record {
     private int active;
     private Address address;
 
+    public Customer(String name, Address address) {
+        setName(name);
+        setAddress(address);
+        setActive(1);
+    }
+    
     /**
      * @return the name
      */

@@ -17,6 +17,10 @@ public class Address extends Record {
     private String postalCode;
     private String phone;
     private City city;
+    
+    public Address() {
+        
+    }
 
     /**
      * @return the address
