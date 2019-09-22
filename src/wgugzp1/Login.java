@@ -5,6 +5,7 @@
  */
 package wgugzp1;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,10 +16,15 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 /**
  *
@@ -55,7 +61,10 @@ public class Login implements Initializable {
         ResultSet results = ps.getResultSet();
         
         // Check for any matching users
-        if (results.next()) passLogin();
+        if (results.next()) {
+            passLogin(results.getInt("userId"));
+            ((Node)(event.getSource())).getScene().getWindow().hide();
+        }
         else failLogin();
         ps.close();
     }
@@ -64,7 +73,24 @@ public class Login implements Initializable {
         System.out.println("Fail");
     }
     
-    public void passLogin() {
-        System.out.println("Pass");
+    public void passLogin(int id) {
+        try {
+            Database db = Database.getInstance();
+            User user = db.getUsers().get(id);
+            db.setLoggedInUser(user);
+            
+            System.out.println("Pass");
+
+            Parent root = FXMLLoader.load(getClass().getResource("Appointment.fxml"));
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

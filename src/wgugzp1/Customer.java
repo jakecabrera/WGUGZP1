@@ -5,6 +5,12 @@
  */
 package wgugzp1;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 /**
@@ -13,13 +19,24 @@ import java.util.Optional;
  */
 public class Customer extends Record {
     private String name;
-    private int active;
+    private int active = 1;
     private Address address;
 
     public Customer(String name, Address address) {
         setName(name);
         setAddress(address);
-        setActive(1);
+    }
+    
+    public Customer(String name, Address address, User creator) {
+        this(name, address);
+        setCreatedBy(creator.getUserName());
+        setCreateDate(ZonedDateTime.now(ZoneId.of("GMT")));
+    }
+    
+    public Customer(String name, Address address, int active, int id) {
+        this(name, address);
+        setActive(active);
+        setId(id);
     }
     
     /**
@@ -70,6 +87,49 @@ public class Customer extends Record {
      */
     public Optional<Integer> getAddressId() {
         return address.getId();
+    }
+    
+    public void pushToDatabase() throws SQLException {
+        PreparedStatement s = Schedule.getDbInstance().prepareStatement("insert into "
+                + "customer(customerName, addressId, active, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                + "values(?, ?, ?, ?, ?, ?, ?)");
+        
+        s.setString(1, getName());
+        s.setString(2, "" + getAddressId().orElseThrow(RuntimeException::new));
+        s.setString(3, "" + getActive());
+        s.setString(4, "" + getCreateDate().toLocalDateTime());
+        s.setString(5, getCreatedBy());
+        s.setString(6, "" + Timestamp.from(getLastUpdate().toInstant()));
+        s.setString(7, getLastUpdateBy());
+        s.execute();
+        s.close();
+        s = Schedule.getDbInstance().prepareStatement("select customerId from customer where "
+                + "customerName = ? COLLATE latin1_general_cs and "
+                + "addressId = ? COLLATE latin1_general_cs");
+        s.setString(1, getName());
+        s.setString(2, "" + getAddressId().orElseThrow(RuntimeException::new));
+        ResultSet r = s.executeQuery();
+        while (r.next()) {
+            setId(r.getInt("customerId"));
+        }
+        s.close();
+        System.out.println(getId().get());
+    }
+    
+    @Override
+    public String toString() {
+        String output = "";
+        output += "customerId: " + getId();
+        output += "; customerName: " + getName();
+        output += "; " + getAddress();
+        return output;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Customer)) return false;
+        Customer c = (Customer) obj;
+        return c.getName().equals(getName()) && c.getAddressId().equals(getAddressId());
     }
     
 }

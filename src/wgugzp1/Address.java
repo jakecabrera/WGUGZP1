@@ -5,6 +5,10 @@
  */
 package wgugzp1;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Optional;
 
 /**
@@ -18,8 +22,17 @@ public class Address extends Record {
     private String phone;
     private City city;
     
-    public Address() {
-        
+    public Address(String address, String address2, String postalCode, String phone, City city) {
+        setAddress(address);
+        setAddress2(address2);
+        setPostalCode(postalCode);
+        setPhone(phone);
+        setCity(city);
+    }
+    
+    public Address(String address, String address2, String postalCode, String phone, City city, int id) {
+        this(address, address2, postalCode, phone, city);
+        setId(id);
     }
 
     /**
@@ -101,5 +114,63 @@ public class Address extends Record {
      */
     public Optional<Integer> getCityId() {
         return city.getId();
+    }
+    
+    public void pushToDatabase() throws SQLException{
+        PreparedStatement s = Schedule.getDbInstance().prepareStatement("insert into "
+                + "address(address, address2, cityId, postalCode, phone, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                + "values(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        s.setString(1, getAddress());
+        s.setString(2, getAddress2());
+        s.setString(3, "" + getCityId().orElseThrow(RuntimeException::new));
+        s.setString(4, getPostalCode());
+        s.setString(5, getPhone());
+        s.setString(6, "" + getCreateDate().toLocalDateTime());
+        s.setString(7, getCreatedBy());
+        s.setString(8, "" + Timestamp.from(getLastUpdate().toInstant()));
+        s.setString(9, getLastUpdateBy());
+        s.execute();
+        s.close();
+        s = Schedule.getDbInstance().prepareStatement("select addressId from address where "
+                + "address = ? COLLATE latin1_general_cs and "
+                + "address2 = ? COLLATE latin1_general_cs and "
+                + "cityId = ? COLLATE latin1_general_cs and "
+                + "postalCode = ? COLLATE latin1_general_cs and "
+                + "phone = ? COLLATE latin1_general_cs");
+        s.setString(1, getAddress());
+        s.setString(2, getAddress2());
+        s.setString(3, "" + getCityId().orElseThrow(RuntimeException::new));
+        s.setString(4, getPostalCode());
+        s.setString(5, getPhone());
+        ResultSet r = s.executeQuery();
+        while (r.next()) {
+            setId(r.getInt("addressId"));
+        }
+        s.close();
+        System.out.println(getId().get());
+    }
+    
+    @Override
+    public String toString() {
+        String output = "";
+        output += "addressId: " + getId();
+        output += "; address: " + getAddress();
+        output += "; address2: " + getAddress2();
+        output += "; postalCode: " + getPostalCode();
+        output += "; phone: " + getPhone();
+        output += "; " + getCity();
+        return output;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Address)) return false;
+        Address a = (Address) obj;
+        boolean address = a.getAddress().equals(getAddress());
+        boolean address2 = a.getAddress2().equals(getAddress2());
+        boolean postalCode = a.getPostalCode().equals(getPostalCode());
+        boolean phone = a.getPhone().equals(getPhone());
+        boolean cityId = a.getCityId().orElseThrow(RuntimeException::new).intValue() == getCityId().orElseThrow(RuntimeException::new).intValue();
+        return address && address2 && postalCode && phone && cityId;
     }
 }

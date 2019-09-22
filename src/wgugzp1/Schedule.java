@@ -26,19 +26,12 @@ import javafx.stage.Stage;
  * @author jakes
  */
 public class Schedule extends Application {
-    /*
-    Connection String
-    Server name: 52.206.157.109
-    Database name: U05Zr6
-    Username: U05Zr6
-    Password: 53688650566
-    */
     
     private static volatile Connection conn;
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("Customer.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("Login.fxml"));
         
         Scene scene = new Scene(root);
         
@@ -47,11 +40,7 @@ public class Schedule extends Application {
         
         Connection db = getDbInstance();
         Statement s = db.createStatement();
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("GMT")) ;
-        Timestamp ts = Timestamp.from(now.toInstant());
-        String fields = "userName, password, active, createDate, createdBy, lastUpdate, lastUpdateBy";
-        String values = "'test', 'password', 1, '" + now.toLocalDateTime() + "', 'admin', '" + ts + "', 'admin'";
-        //s.executeUpdate("insert into user("+fields+") values("+values+");");
+        //s.executeUpdate("delete from country;");
         ResultSet r = s.executeQuery("select * from user");
         ResultSetMetaData rm = r.getMetaData();
         int columnsNumber = rm.getColumnCount();

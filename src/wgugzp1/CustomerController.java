@@ -6,6 +6,7 @@
 package wgugzp1;
 
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -52,7 +53,7 @@ public class CustomerController implements Initializable {
     }
 
     @FXML
-    private void saveCustomer(ActionEvent event) {
+    private void saveCustomer(ActionEvent event) throws SQLException {
         // Get all the fields
         String name = txtName.getText();
         String address1 = txtAddress1.getText();
@@ -62,16 +63,18 @@ public class CustomerController implements Initializable {
         String phone = txtPhone.getText();
         String postalCode = txtPostalCode.getText();
         
+        Database db = Database.getInstance();
+        Country inputCountry = new Country(country);
+        db.addCountry(inputCountry);
         
+        City inputCity = new City(city, inputCountry);
+        db.addCity(inputCity);
         
-    }
-    
-    private void insertCustomer(Customer customer) {
+        Address inputAddress = new Address(address1, address2, postalCode, phone, inputCity);
+        db.addAddress(inputAddress);
         
-    }
-    
-    private void updateCustomer(Customer customer) {
-        
+        Customer inputCustomer = new Customer(name, inputAddress);
+        db.addCustomer(inputCustomer);
     }
 
     @FXML

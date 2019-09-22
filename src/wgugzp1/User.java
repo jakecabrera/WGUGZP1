@@ -12,8 +12,19 @@ package wgugzp1;
 public class User extends Record {
     private String userName;
     private String password;
-    private byte active;
+    private int active;
 
+    public User(String userName, String password, byte active) {
+        setUserName(userName);
+        setPassword(password);
+        setActive(active);
+    }
+    
+    public User(String userName, String password, byte active, int id) {
+        this(userName, password, active);
+        setId(id);
+    }
+    
     /**
      * @return the userName
      */
@@ -47,7 +58,7 @@ public class User extends Record {
     /**
      * @return the active
      */
-    public byte getActive() {
+    public int getActive() {
         return active;
     }
 
