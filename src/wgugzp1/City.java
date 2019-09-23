@@ -75,7 +75,7 @@ public class City extends Record {
         s.setString(4, getCreatedBy());
         s.setString(5, "" + Timestamp.from(getLastUpdate().toInstant()));
         s.setString(6, getLastUpdateBy());
-        s.execute();
+        s.executeUpdate();
         s.close();
         s = Schedule.getDbInstance().prepareStatement("select cityId from city where "
                 + "city = ? COLLATE latin1_general_cs and "

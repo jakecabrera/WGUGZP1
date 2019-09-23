@@ -11,8 +11,8 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -20,7 +20,8 @@ import javafx.scene.control.TextField;
  * @author jakes
  */
 public class CustomerController implements Initializable {
-    private boolean newCustomer = true;
+    private static boolean newCustomer = true;
+    private static Customer customerInProcess;
 
     @FXML
     private TextField txtName;
@@ -36,21 +37,24 @@ public class CustomerController implements Initializable {
     private TextField txtPostalCode;
     @FXML
     private TextField txtPhone;
-    @FXML
-    private Button btnDelete;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        btnDelete.setDisable(newCustomer);
-        btnDelete.setVisible(!newCustomer);
-    }    
-
-    @FXML
-    private void deleteCustomer(ActionEvent event) {
-    }
+        System.out.println(isNewCustomer());
+        System.out.println(getCustomerInProcess());
+        if (!isNewCustomer()) {
+            txtName.setText(getCustomerInProcess().getName());
+            txtAddress1.setText(getCustomerInProcess().getAddress().getAddress());
+            txtAddress2.setText(getCustomerInProcess().getAddress().getAddress2());
+            txtCity.setText(getCustomerInProcess().getAddress().getCity().getCity());
+            txtCountry.setText(getCustomerInProcess().getAddress().getCity().getCountry().getCountry());
+            txtPhone.setText(getCustomerInProcess().getAddress().getPhone());
+            txtPostalCode.setText(getCustomerInProcess().getAddress().getPostalCode());
+        }
+    }  
 
     @FXML
     private void saveCustomer(ActionEvent event) throws SQLException {
@@ -73,12 +77,50 @@ public class CustomerController implements Initializable {
         Address inputAddress = new Address(address1, address2, postalCode, phone, inputCity);
         db.addAddress(inputAddress);
         
-        Customer inputCustomer = new Customer(name, inputAddress);
-        db.addCustomer(inputCustomer);
+        if (isNewCustomer()) {
+            setCustomerInProcess(new Customer(name, inputAddress));
+            db.addCustomer(getCustomerInProcess());
+        } else {
+            Customer c = getCustomerInProcess();
+            c.setAddress(inputAddress);
+            c.setName(name);
+            c.update();
+        }
     }
 
     @FXML
     private void cancelCustomer(ActionEvent event) {
+        ((Stage) txtName.getScene().getWindow()).close();
+    }
+
+    /**
+     * @return the newCustomer
+     */
+    public static boolean isNewCustomer() {
+        System.out.println("is it new?");
+        return newCustomer;
+    }
+
+    /**
+     * @param newCustomer the newCustomer to set
+     */
+    public static void setNewCustomer(boolean aNewCustomer) {
+        System.out.println("Setting to :" + aNewCustomer);
+        newCustomer = aNewCustomer;
+    }
+
+    /**
+     * @return the customerInProcess
+     */
+    public static Customer getCustomerInProcess() {
+        return customerInProcess;
+    }
+
+    /**
+     * @param aCustomerInProcess the customerInProcess to set
+     */
+    public static void setCustomerInProcess(Customer aCustomerInProcess) {
+        customerInProcess = aCustomerInProcess;
     }
     
 }

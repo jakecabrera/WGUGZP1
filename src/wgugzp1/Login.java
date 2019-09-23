@@ -81,7 +81,7 @@ public class Login implements Initializable {
             
             System.out.println("Pass");
 
-            Parent root = FXMLLoader.load(getClass().getResource("Appointment.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("Main.fxml"));
             Stage stage = new Stage();
             Scene scene = new Scene(root);
             stage.setScene(scene);

@@ -129,7 +129,7 @@ public class Address extends Record {
         s.setString(7, getCreatedBy());
         s.setString(8, "" + Timestamp.from(getLastUpdate().toInstant()));
         s.setString(9, getLastUpdateBy());
-        s.execute();
+        s.executeUpdate();
         s.close();
         s = Schedule.getDbInstance().prepareStatement("select addressId from address where "
                 + "address = ? COLLATE latin1_general_cs and "

@@ -89,6 +89,18 @@ public class Customer extends Record {
         return address.getId();
     }
     
+    public int getIdAsInt() {
+        return getId().orElseThrow(RuntimeException::new);
+    }
+    
+    public String getCity() {
+        return getAddress().getCity().getCity();
+    }
+
+    public String getCountry() {
+        return getAddress().getCity().getCountry().getCountry();
+    }
+    
     public void pushToDatabase() throws SQLException {
         PreparedStatement s = Schedule.getDbInstance().prepareStatement("insert into "
                 + "customer(customerName, addressId, active, createDate, createdBy, lastUpdate, lastUpdateBy) "
@@ -101,7 +113,7 @@ public class Customer extends Record {
         s.setString(5, getCreatedBy());
         s.setString(6, "" + Timestamp.from(getLastUpdate().toInstant()));
         s.setString(7, getLastUpdateBy());
-        s.execute();
+        s.executeUpdate();
         s.close();
         s = Schedule.getDbInstance().prepareStatement("select customerId from customer where "
                 + "customerName = ? COLLATE latin1_general_cs and "
@@ -114,6 +126,16 @@ public class Customer extends Record {
         }
         s.close();
         System.out.println(getId().get());
+    }
+    
+    public void update() throws SQLException {
+        PreparedStatement s = Schedule.getDbInstance().prepareStatement("update customer "
+                + "set customerName = ?, addressId = ? "
+                + "where customerId = ? ");
+        s.setInt(3, getIdAsInt());
+        s.setString(1, getName());
+        s.setInt(2, getAddressId().orElseThrow(RuntimeException::new));
+        s.executeUpdate();
     }
     
     @Override

@@ -126,16 +126,8 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2">
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2">
                <children>
-                  <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#deleteCustomer" prefWidth="70.0" text="Delete">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Button>
                   <Button mnemonicParsing="false" onAction="#saveCustomer" prefWidth="70.0" text="Save">
                      <HBox.margin>
                         <Insets left="10.0" />

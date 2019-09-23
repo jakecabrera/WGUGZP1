@@ -5,7 +5,6 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -53,22 +52,22 @@
                   <Font size="20.0" />
                </font>
             </Label>
-            <TextField fx:id="txtCity" promptText="Location" GridPane.columnIndex="1">
+            <TextField fx:id="txtLocation" promptText="Location" GridPane.columnIndex="1">
                <font>
                   <Font size="20.0" />
                </font>
             </TextField>
-            <TextField fx:id="txtCountry" promptText="Contact" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <TextField fx:id="txtContact" promptText="Contact" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <font>
                   <Font size="20.0" />
                </font>
             </TextField>
-            <TextField fx:id="txtPostalCode" promptText="Type" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <TextField fx:id="txtType" promptText="Type" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <font>
                   <Font size="20.0" />
                </font>
             </TextField>
-            <TextField fx:id="txtPhone" promptText="URL" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <TextField fx:id="txtURL" promptText="URL" GridPane.columnIndex="1" GridPane.rowIndex="3">
                <font>
                   <Font size="20.0" />
                </font>
@@ -85,29 +84,29 @@
             </Label>
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                <children>
-                  <DatePicker>
+                  <DatePicker fx:id="dateStart">
                      <HBox.margin>
                         <Insets right="15.0" />
                      </HBox.margin>
                   </DatePicker>
-                  <ChoiceBox prefWidth="80.0" />
+                  <ChoiceBox fx:id="hourStart" prefWidth="80.0" />
                   <Label text=":">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
-                  <ChoiceBox prefWidth="80.0" />
-                  <ChoiceBox prefWidth="80.0" />
+                  <ChoiceBox fx:id="minuteStart" prefWidth="80.0" />
+                  <ChoiceBox fx:id="periodStart" prefWidth="80.0" />
                </children>
             </HBox>
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
                <children>
-                  <DatePicker>
+                  <DatePicker fx:id="dateEnd">
                      <HBox.margin>
                         <Insets right="15.0" />
                      </HBox.margin>
                   </DatePicker>
-                  <ChoiceBox prefWidth="80.0">
+                  <ChoiceBox fx:id="hourEnd" prefWidth="80.0">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
@@ -117,12 +116,12 @@
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
-                  <ChoiceBox prefWidth="80.0">
+                  <ChoiceBox fx:id="minuteEnd" prefWidth="80.0">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
                   </ChoiceBox>
-                  <ChoiceBox prefWidth="80.0">
+                  <ChoiceBox fx:id="periodEnd" prefWidth="80.0">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
@@ -146,9 +145,9 @@
       <Insets bottom="15.0" left="60.0" right="60.0" top="15.0" />
    </padding>
    <bottom>
-      <HBox alignment="CENTER">
+      <HBox alignment="CENTER_RIGHT">
          <children>
-            <Button mnemonicParsing="false" onAction="#deleteAppointment" prefWidth="70.0" text="Delete">
+            <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#deleteAppointment" prefWidth="70.0" text="Delete">
                <HBox.margin>
                   <Insets left="10.0" />
                </HBox.margin>
@@ -188,7 +187,7 @@
                         <Insets right="10.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField prefHeight="44.0" prefWidth="259.0" promptText="Title">
+                  <TextField fx:id="txtTitle" prefHeight="44.0" prefWidth="259.0" promptText="Title">
                      <font>
                         <Font size="20.0" />
                      </font>
@@ -203,7 +202,7 @@
                   <Insets top="10.0" />
                </padding>
             </Label>
-            <TextArea prefHeight="200.0" prefWidth="200.0">
+            <TextArea fx:id="txtDescription" prefHeight="200.0" prefWidth="200.0">
                <VBox.margin>
                   <Insets bottom="10.0" />
                </VBox.margin>
@@ -215,7 +214,7 @@
                         <Font size="20.0" />
                      </font>
                   </Label>
-                  <TextField promptText="Customer">
+                  <TextField fx:id="txtCustomer" promptText="Customer">
                      <font>
                         <Font size="16.0" />
                      </font>
@@ -223,23 +222,18 @@
                         <Insets />
                      </HBox.margin>
                   </TextField>
-                  <Button mnemonicParsing="false" text="Search">
+                  <Button mnemonicParsing="false" onAction="#searchCustomer" text="Search">
                      <font>
                         <Font size="16.0" />
                      </font>
                   </Button>
                </children>
             </HBox>
-            <TableView prefHeight="200.0" prefWidth="200.0">
-              <columns>
-                <TableColumn prefWidth="75.0" text="C1" />
-                <TableColumn prefWidth="75.0" text="C2" />
-              </columns>
-            </TableView>
+            <TableView fx:id="tblCustomer" prefHeight="200.0" prefWidth="200.0" />
             <HBox>
                <children>
                   <Label text="Selection:" />
-                  <Label text="Customer Name">
+                  <Label fx:id="lblSelection" text="Customer Name">
                      <HBox.margin>
                         <Insets left="15.0" />
                      </HBox.margin>

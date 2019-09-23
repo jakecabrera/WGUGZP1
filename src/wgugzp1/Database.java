@@ -181,6 +181,17 @@ public class Database {
         System.out.println(customer.toString());
         getCustomers().put(customer.getId().get(), customer);
     }
+    
+    public void deleteCustomer(Customer customer) throws SQLException {
+        Connection db = Schedule.getDbInstance();
+        Statement s = db.createStatement();
+        s.executeUpdate("delete from customer where customerId = " + customer.getIdAsInt());
+        getCustomers().remove(customer.getId().orElseThrow(RuntimeException::new));
+    }
+    
+    public void updateCustomer(Customer customer) throws SQLException {
+        
+    }
 
     /**
      * @return the customers

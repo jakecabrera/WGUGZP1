@@ -50,7 +50,7 @@ public class Country extends Record{
         s.setString(3, getCreatedBy());
         s.setString(4, "" + Timestamp.from(getLastUpdate().toInstant()));
         s.setString(5, getLastUpdateBy());
-        s.execute();
+        s.executeUpdate();
         s.close();
         s = Schedule.getDbInstance().prepareStatement("select countryId from country where country = ? COLLATE latin1_general_cs");
         s.setString(1, getCountry());
