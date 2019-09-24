@@ -130,11 +130,14 @@ public class Customer extends Record {
     
     public void update() throws SQLException {
         PreparedStatement s = Schedule.getDbInstance().prepareStatement("update customer "
-                + "set customerName = ?, addressId = ? "
+                + "set customerName = ?, addressId = ?, lastUpdate = ?, lastUpdateBy = ? "
                 + "where customerId = ? ");
-        s.setInt(3, getIdAsInt());
+        s.setInt(5, getIdAsInt());
         s.setString(1, getName());
         s.setInt(2, getAddressId().orElseThrow(RuntimeException::new));
+        s.setString(3, "" + ZonedDateTime.now(ZoneId.of("GMT")).toLocalDateTime());
+        s.setString(4, Database.getInstance().getLoggedInUser().getUserName());
+        
         s.executeUpdate();
     }
     

@@ -37,12 +37,18 @@ public class CustomerController implements Initializable {
     private TextField txtPostalCode;
     @FXML
     private TextField txtPhone;
+    private Database db;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        try {
+            db = Database.getInstance();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         System.out.println(isNewCustomer());
         System.out.println(getCustomerInProcess());
         if (!isNewCustomer()) {
@@ -67,7 +73,6 @@ public class CustomerController implements Initializable {
         String phone = txtPhone.getText();
         String postalCode = txtPostalCode.getText();
         
-        Database db = Database.getInstance();
         Country inputCountry = new Country(country);
         db.addCountry(inputCountry);
         
@@ -97,7 +102,6 @@ public class CustomerController implements Initializable {
      * @return the newCustomer
      */
     public static boolean isNewCustomer() {
-        System.out.println("is it new?");
         return newCustomer;
     }
 
@@ -105,7 +109,6 @@ public class CustomerController implements Initializable {
      * @param newCustomer the newCustomer to set
      */
     public static void setNewCustomer(boolean aNewCustomer) {
-        System.out.println("Setting to :" + aNewCustomer);
         newCustomer = aNewCustomer;
     }
 

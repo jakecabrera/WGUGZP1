@@ -97,6 +97,10 @@ public abstract class Record {
     public Optional<Integer> getId() {
         return id;
     }
+    
+    public int getIdAsInt() {
+        return id.orElseThrow(RuntimeException::new);
+    }
 
     /**
      * @param id the id to set

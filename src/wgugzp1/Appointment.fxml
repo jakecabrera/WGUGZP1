@@ -147,14 +147,6 @@
    <bottom>
       <HBox alignment="CENTER_RIGHT">
          <children>
-            <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#deleteAppointment" prefWidth="70.0" text="Delete">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin>
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Button>
             <Button mnemonicParsing="false" onAction="#saveAppointment" prefWidth="70.0" text="Save">
                <HBox.margin>
                   <Insets left="10.0" />

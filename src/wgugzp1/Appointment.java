@@ -5,7 +5,14 @@
  */
 package wgugzp1;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  *
@@ -19,11 +26,27 @@ public class Appointment extends Record {
     private String contact;
     private String URL;
     private String type;
+    private String location;
     private ZonedDateTime start;
     private ZonedDateTime end;
+    private static int offset = 0;
     
-    public Appointment(Customer customer, User user, String title, String description, String type, ZonedDateTime start, ZonedDateTime end) {
-        
+    public Appointment(Customer customer, User user, String title, String description, String location, String contact, String type, String url, ZonedDateTime start, ZonedDateTime end) {
+        setCustomer(customer);
+        setUser(user);
+        setTitle(title);
+        setDescription(description);
+        setLocation(location);
+        setContact(contact);
+        setType(type);
+        setURL(url);
+        setStart(start);
+        setEnd(end);
+    }
+    
+    public Appointment(Customer customer, User user, String title, String description, String location, String contact, String type, String url, ZonedDateTime start, ZonedDateTime end, int id) {
+        this(customer, user, title, description, location, contact, type, url, start, end);
+        setId(id);
     }
 
     /**
@@ -151,6 +174,113 @@ public class Appointment extends Record {
     public void setEnd(ZonedDateTime end) {
         this.end = end;
     }
+
+    /**
+     * @return the location
+     */
+    public String getLocation() {
+        return location;
+    }
+
+    /**
+     * @param location the location to set
+     */
+    public void setLocation(String location) {
+        this.location = location;
+    }
         
+    public void pushToDatabase() throws SQLException {
+        Database db = Database.getInstance();
         
+        PreparedStatement s = Schedule.getDbInstance().prepareStatement("insert into "
+                + "appointment(customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                + "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        
+        s.setInt(1, getCustomer().getIdAsInt());
+        s.setInt(2, db.getLoggedInUser().getId().orElseThrow(RuntimeException::new));
+        s.setString(3, getTitle());
+        s.setString(4, getDescription());
+        s.setString(5, getLocation());
+        s.setString(6, getContact());
+        s.setString(7, getType());
+        s.setString(8, getURL());
+        s.setString(9, "" + getStart().toLocalDateTime());
+        s.setString(10, "" + getEnd().toLocalDateTime());
+        s.setString(11, "" + getCreateDate().toLocalDateTime());
+        s.setString(12, getCreatedBy());
+        s.setString(13, "" + Timestamp.from(getLastUpdate().toInstant()));
+        s.setString(14, getLastUpdateBy());
+        s.executeUpdate();
+        s.close();
+        s = Schedule.getDbInstance().prepareStatement("select appointmentId from appointment where "
+                + "title = ? COLLATE latin1_general_cs and "
+                + "customerId = ? COLLATE latin1_general_cs and "
+                + "userId = ? COLLATE latin1_general_cs "
+                + "group by appointmentId");
+        s.setString(1, getTitle());
+        s.setInt(2, getCustomer().getId().orElseThrow(RuntimeException::new));
+        s.setInt(3, db.getLoggedInUser().getId().orElseThrow(RuntimeException::new));
+        
+        ResultSet r = s.executeQuery();
+        while (r.next()) {
+            setId(r.getInt("appointmentId"));
+        }
+        s.close();
+        System.out.println(getId().get());
+    }
+    
+    public void update() throws SQLException {
+        PreparedStatement s = Schedule.getDbInstance().prepareStatement("update appointment "
+                + "set customerId = ?, title = ?, description = ?, location = ?, "
+                + "contact = ?, type = ?, url = ?, start = ?, end = ?, lastUpdate = ?, "
+                + "lastUpdateBy = ? "
+                + "where appointmentId = ? ");
+        s.setInt(1, getCustomer().getIdAsInt());
+        s.setString(2, getTitle());
+        s.setString(3, getDescription());
+        s.setString(4, getLocation());
+        s.setString(5, getContact());
+        s.setString(6, getType());
+        s.setString(7, getURL());
+        s.setString(8, "" + getStart().toLocalDateTime());
+        System.out.println("End DAte: " + getEnd().toLocalDateTime());
+        s.setString(9, "" + getEnd().toLocalDateTime());
+        s.setString(10, "" + ZonedDateTime.now(ZoneId.of("GMT")).toLocalDateTime());
+        s.setString(11, Database.getInstance().getLoggedInUser().getUserName());
+        
+        s.setInt(12, getId().orElseThrow(RuntimeException::new));
+        s.executeUpdate();
+    }
+    
+    public String getCustomerName() {
+        return getCustomer().getName();
+    }
+    
+    public String getStartFormatted() {
+        String output = "";
+        ZoneOffset offset = ZoneOffset.ofTotalSeconds(getOffset());
+        ZoneId zone = ZoneId.ofOffset("", offset);
+        ZonedDateTime t = getStart().withZoneSameInstant(zone);
+        output += t.format(DateTimeFormatter.ofPattern("MM/dd/yyyy - HH:mm"));
+        return output;
+    }
+    
+    @Override
+    public String toString() {
+        String output = "";
+        output += "id: " + getId();
+        output += "; title: " + getTitle();
+        output += "; contact: " + getContact();
+        output += "; Customer[[" + getCustomer();
+        return output;
+    }
+    
+    public static void setOffset(int anOffset) {
+        System.out.println("Setting offset to " + anOffset);
+        offset = anOffset;
+    }
+    
+    public static int getOffset() {
+        return offset;
+    }
 }

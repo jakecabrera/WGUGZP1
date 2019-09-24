@@ -9,11 +9,16 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
+import static wgugzp1.Appointment.getOffset;
 
 /**
  *
@@ -25,8 +30,10 @@ public class Database {
     private final Map<Integer, City> cities = new HashMap();
     private final Map<Integer, Country> countries = new HashMap();
     private final Map<Integer, User> users = new HashMap();
+    private Map<Integer, Appointment> appointments = new HashMap();
     private User loggedInUser;
     private static volatile Database database;
+    private int offsetMonths = 0;
     
     private Database() throws SQLException{
         setupMap();
@@ -103,7 +110,7 @@ public class Database {
         r.close();
         
         // Get users
-        getCustomers().clear();
+        getUsers().clear();
         r = s.executeQuery("select * from user");
         while (r.next()) {
             String name = r.getString("userName");
@@ -113,6 +120,40 @@ public class Database {
             User user = new User(name, password, active, id);
             setRecord(user, r);
             getUsers().put(id, user);
+        }
+        r.close();
+        
+        // Get appointments
+        getAppointments().clear();
+        r = s.executeQuery("select * from appointment");
+        while (r.next()) {
+            int id = r.getInt("appointmentId");
+            int customerId = r.getInt("customerId");
+            int userId = r.getInt("userId");
+            String title = r.getString("title");
+            String description = r.getString("description");
+            String location = r.getString("location");
+            String contact = r.getString("contact");
+            String type = r.getString("type");
+            String url = r.getString("url");
+            ZonedDateTime start = ZonedDateTime.ofInstant(r.getTimestamp("start").toInstant(), ZoneId.of("GMT"));
+            ZonedDateTime end = ZonedDateTime.ofInstant(r.getTimestamp("end").toInstant(), ZoneId.of("GMT"));
+            
+            Appointment appointment = new Appointment(
+                    getCustomers().get(customerId),
+                    getUsers().get(userId),
+                    title,
+                    description,
+                    location,
+                    contact,
+                    type,
+                    url,
+                    start,
+                    end,
+                    id
+            );
+            setRecord(appointment, r);
+            getAppointments().put(id, appointment);
         }
         r.close();
         
@@ -182,6 +223,20 @@ public class Database {
         getCustomers().put(customer.getId().get(), customer);
     }
     
+    public void addAppointment(Appointment appointment) throws SQLException {
+        if (appointment.getId().isPresent()) return;
+        for (Appointment a: getAppointments().values()) {
+            if (a.equals(appointment)) {
+                appointment.setId(a.getId().get());
+                System.out.println(appointment.toString());
+                return;
+            }
+        }
+        appointment.pushToDatabase();     
+        System.out.println(appointment.toString());
+        getAppointments().put(appointment.getId().get(), appointment);
+    }
+    
     public void deleteCustomer(Customer customer) throws SQLException {
         Connection db = Schedule.getDbInstance();
         Statement s = db.createStatement();
@@ -189,8 +244,11 @@ public class Database {
         getCustomers().remove(customer.getId().orElseThrow(RuntimeException::new));
     }
     
-    public void updateCustomer(Customer customer) throws SQLException {
-        
+    public void deleteAppointment(Appointment appointment) throws SQLException {
+        Connection db = Schedule.getDbInstance();
+        Statement s = db.createStatement();
+        s.executeUpdate("delete from appointment where appointmentId = " + appointment.getIdAsInt());
+        getAppointments().remove(appointment.getIdAsInt());
     }
 
     /**
@@ -240,5 +298,46 @@ public class Database {
      */
     public void setLoggedInUser(User loggedInUser) {
         this.loggedInUser = loggedInUser;
+    }
+
+    /**
+     * @return the appointments
+     */
+    public Map<Integer, Appointment> getAppointments() {
+        return appointments;
+    }
+    
+    public List<Appointment> getAppointmentsByMonth() {
+        List<Appointment> list;
+        Stream<Appointment> stream = getAppointments().values().stream();
+        ZoneOffset offset = ZoneOffset.ofTotalSeconds(Appointment.getOffset());
+        ZoneId zone = ZoneId.ofOffset("", offset);
+        ZonedDateTime t = ZonedDateTime.now().withZoneSameInstant(zone);
+        t.plusMonths(getOffsetMonths());
+        stream.filter(x -> x.getStart().getYear() == t.getYear() && x.getStart().getMonth() == t.getMonth());
+        list = stream.collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+        
+        return list;
+    }
+
+    /**
+     * @param appointments the appointments to set
+     */
+    public void setAppointments(Map<Integer, Appointment> appointments) {
+        this.appointments = appointments;
+    }
+
+    /**
+     * @return the offsetMonths
+     */
+    public int getOffsetMonths() {
+        return offsetMonths;
+    }
+
+    /**
+     * @param offsetMonths the offsetMonths to set
+     */
+    public void setOffsetMonths(int offsetMonths) {
+        this.offsetMonths = offsetMonths;
     }
 }
