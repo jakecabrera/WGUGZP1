@@ -69,13 +69,15 @@ public class Login implements Initializable {
         ps.close();
     }
     
-    public void failLogin() {
+    public void failLogin() throws SQLException{
+        Database.getInstance().recordLogIn(txtUsername.getText(), false);
         System.out.println("Fail");
     }
     
     public void passLogin(int id) {
         try {
             Database db = Database.getInstance();
+            db.recordLogIn(txtUsername.getText(), true);
             User user = db.getUsers().get(id);
             db.setLoggedInUser(user);
             

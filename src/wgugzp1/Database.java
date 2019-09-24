@@ -5,20 +5,31 @@
  */
 package wgugzp1;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
-import static wgugzp1.Appointment.getOffset;
+import javafx.collections.transformation.SortedList;
 
 /**
  *
@@ -34,6 +45,7 @@ public class Database {
     private User loggedInUser;
     private static volatile Database database;
     private int offsetMonths = 0;
+    private int offsetWeeks = 0;
     
     private Database() throws SQLException{
         setupMap();
@@ -308,14 +320,38 @@ public class Database {
     }
     
     public List<Appointment> getAppointmentsByMonth() {
-        List<Appointment> list;
-        Stream<Appointment> stream = getAppointments().values().stream();
+        List<Appointment> list = new ArrayList(getAppointments().values());
+        Stream<Appointment> stream = list.stream();
         ZoneOffset offset = ZoneOffset.ofTotalSeconds(Appointment.getOffset());
         ZoneId zone = ZoneId.ofOffset("", offset);
-        ZonedDateTime t = ZonedDateTime.now().withZoneSameInstant(zone);
-        t.plusMonths(getOffsetMonths());
-        stream.filter(x -> x.getStart().getYear() == t.getYear() && x.getStart().getMonth() == t.getMonth());
-        list = stream.collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+        ZonedDateTime t = ZonedDateTime.now().withZoneSameInstant(zone).plusMonths(getOffsetMonths());
+        list.removeIf(x -> {
+            ZonedDateTime start = x.getStart().withZoneSameInstant(zone);
+            boolean sameYear = start.getYear() == t.getYear();
+            boolean sameMonth = start.getMonth() == t.getMonth();
+            return !sameYear || !sameMonth;
+        });
+        list.sort((a1, a2) -> {
+            return a1.getStart().toLocalDateTime().compareTo(a2.getStart().toLocalDateTime());
+        });
+        return list;
+    }
+    
+    public List<Appointment> getAppointmentsByWeek() {
+        List<Appointment> list = new ArrayList(getAppointments().values());
+        ZoneOffset offset = ZoneOffset.ofTotalSeconds(Appointment.getOffset());
+        ZoneId zone = ZoneId.ofOffset("", offset);
+        ZonedDateTime t = ZonedDateTime.now().withZoneSameInstant(zone).plusWeeks(getOffsetWeeks());
+        WeekFields w = WeekFields.of(Locale.getDefault());
+        list.removeIf(x -> {
+            ZonedDateTime start = x.getStart().withZoneSameInstant(zone);
+            boolean sameYear = start.getYear() == t.getYear();
+            boolean sameWeek = start.get(w.weekOfWeekBasedYear()) == t.get(w.weekOfWeekBasedYear());
+            return !sameYear || !sameWeek;
+        });
+        list.sort((a1, a2) -> {
+            return a1.getStart().toLocalDateTime().compareTo(a2.getStart().toLocalDateTime());
+        });
         
         return list;
     }
@@ -339,5 +375,38 @@ public class Database {
      */
     public void setOffsetMonths(int offsetMonths) {
         this.offsetMonths = offsetMonths;
+    }
+
+    /**
+     * @return the offsetWeeks
+     */
+    public int getOffsetWeeks() {
+        return offsetWeeks;
+    }
+
+    /**
+     * @param offsetWeeks the offsetWeeks to set
+     */
+    public void setOffsetWeeks(int offsetWeeks) {
+        this.offsetWeeks = offsetWeeks;
+    }
+    
+    public void recordLogIn(String user, boolean wasSuccessful) {
+        Path loginFile = Paths.get("login.txt");
+        if (!Files.exists(loginFile)) try {
+            Files.createFile(loginFile);
+        } catch (IOException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try (BufferedWriter writer = Files.newBufferedWriter(loginFile, Charset.forName("UTF-16"), StandardOpenOption.APPEND)) {
+            ZonedDateTime t = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC"));
+            String ts = t.format(DateTimeFormatter.ofPattern("MM/dd/yyyy - HH:mm:ss z"));
+            String output = ts + ": ";
+            output += (wasSuccessful)? "Successful": "Failed";
+            output += " login attempt for user: [" + user + "]" + System.lineSeparator();
+            writer.write(output);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

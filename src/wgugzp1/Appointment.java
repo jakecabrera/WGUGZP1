@@ -204,11 +204,11 @@ public class Appointment extends Record {
         s.setString(6, getContact());
         s.setString(7, getType());
         s.setString(8, getURL());
-        s.setString(9, "" + getStart().toLocalDateTime());
-        s.setString(10, "" + getEnd().toLocalDateTime());
-        s.setString(11, "" + getCreateDate().toLocalDateTime());
+        s.setString(9, "" + getStart().withZoneSameInstant(ZoneId.of("GMT")).toLocalDateTime());
+        s.setString(10, "" + getEnd().withZoneSameInstant(ZoneId.of("GMT")).toLocalDateTime());
+        s.setString(11, "" + getCreateDate().withZoneSameInstant(ZoneId.of("GMT")).toLocalDateTime());
         s.setString(12, getCreatedBy());
-        s.setString(13, "" + Timestamp.from(getLastUpdate().toInstant()));
+        s.setString(13, "" + Timestamp.from(getLastUpdate().withZoneSameInstant(ZoneId.of("GMT")).toInstant()));
         s.setString(14, getLastUpdateBy());
         s.executeUpdate();
         s.close();
@@ -242,10 +242,10 @@ public class Appointment extends Record {
         s.setString(5, getContact());
         s.setString(6, getType());
         s.setString(7, getURL());
-        s.setString(8, "" + getStart().toLocalDateTime());
-        System.out.println("End DAte: " + getEnd().toLocalDateTime());
-        s.setString(9, "" + getEnd().toLocalDateTime());
-        s.setString(10, "" + ZonedDateTime.now(ZoneId.of("GMT")).toLocalDateTime());
+        s.setString(8, "" + getStart().withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
+        System.out.println("End DAte: " + getEnd().withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
+        s.setString(9, "" + getEnd().withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
+        s.setString(10, "" + ZonedDateTime.now().withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
         s.setString(11, Database.getInstance().getLoggedInUser().getUserName());
         
         s.setInt(12, getId().orElseThrow(RuntimeException::new));

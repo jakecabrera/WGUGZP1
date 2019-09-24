@@ -10,6 +10,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,6 +18,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
@@ -97,8 +100,16 @@ public class MainController implements Initializable {
         tblAppointments.getColumns().add(columnContact);
         tblAppointments.getColumns().add(columnTitle);
         
-        System.out.println(db.getAppointments().size());
-        tblAppointments.getItems().addAll(db.getAppointments().values());
+        tblAppointments.getItems().addAll(getAppointmentWindow());
+        tblAppointments.getSortOrder().add(columnStart);
+        tblAppointments.sort();
+        
+        window.selectedToggleProperty().addListener((obsVal, oldVal, newVal) -> {
+            db.setOffsetMonths(0);
+            db.setOffsetWeeks(0);
+            tblAppointments.getItems().clear();
+            tblAppointments.getItems().addAll(getAppointmentWindow());
+        });
         
         sldTimeZone.valueProperty().addListener((obsVal, oldVal, newVal) -> {
             if (sldTimeZone.valueChangingProperty().getValue()) return;
@@ -111,9 +122,11 @@ public class MainController implements Initializable {
             String m = (("" + minutes).length() == 1)? "0" + minutes: "" + minutes;
             lblOffset.setText("" + h + ":" + m);
             Appointment.setOffset((int) (newVal.doubleValue() * 60 * 60));
-            tblAppointments.refresh();
+            tblAppointments.getItems().clear();
+            tblAppointments.getItems().addAll(getAppointmentWindow());
         });
         sldTimeZone.setValue(((double) ZonedDateTime.now().getOffset().getTotalSeconds())/(60.0 * 60.0));
+        checkAppointmentIn15();
     }    
 
     @FXML
@@ -180,9 +193,8 @@ public class MainController implements Initializable {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.showAndWait();
-            System.out.println(db.getAppointments().size());
             tblAppointments.getItems().clear();
-            tblAppointments.getItems().addAll(db.getAppointments().values());
+            tblAppointments.getItems().addAll(getAppointmentWindow());
         } catch (IOException iOException) {
             iOException.printStackTrace();
         }
@@ -200,9 +212,8 @@ public class MainController implements Initializable {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.showAndWait();
-            System.out.println(db.getAppointments().size());
             tblAppointments.getItems().clear();
-            tblAppointments.getItems().addAll(db.getAppointments().values());
+            tblAppointments.getItems().addAll(getAppointmentWindow());
         } catch (IOException iOException) {
             iOException.printStackTrace();
         }
@@ -214,18 +225,67 @@ public class MainController implements Initializable {
         Object obj = tblAppointments.getSelectionModel().getSelectedItem();
         if (obj instanceof Appointment) {
             db.deleteAppointment((Appointment) obj);
-            System.out.println(db.getAppointments().size());
+            System.out.println(getAppointmentWindow());
             tblAppointments.getItems().clear();
-            tblAppointments.getItems().addAll(db.getAppointments().values());
+            tblAppointments.getItems().addAll(getAppointmentWindow());
+        }
+    }
+    
+    private List<Appointment> getAppointmentWindow() {
+        if (rdbtnMonth.selectedProperty().getValue()) {
+            return db.getAppointmentsByMonth();
+        } else {
+            return db.getAppointmentsByWeek();
         }
     }
 
     @FXML
     private void previousWindow(ActionEvent event) {
+        if (rdbtnMonth.selectedProperty().getValue()) {
+            db.setOffsetMonths(db.getOffsetMonths() - 1);
+        } else {
+            db.setOffsetWeeks(db.getOffsetWeeks() - 1);
+        }
+        tblAppointments.getItems().clear();
+        tblAppointments.getItems().addAll(getAppointmentWindow());
     }
 
     @FXML
     private void nextWindow(ActionEvent event) {
+        if (rdbtnMonth.selectedProperty().getValue()) {
+            db.setOffsetMonths(db.getOffsetMonths() + 1);
+        } else {
+            db.setOffsetWeeks(db.getOffsetWeeks() + 1);
+        }
+        tblAppointments.getItems().clear();
+        tblAppointments.getItems().addAll(getAppointmentWindow());
+    }
+
+    @FXML
+    private void getConsultantSchedule(ActionEvent event) {
+    }
+
+    @FXML
+    private void getApptsTypesPerMonth(ActionEvent event) {
+    }
+
+    @FXML
+    private void getUserActivity(ActionEvent event) {
     }
     
+    private void checkAppointmentIn15() {
+        ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("GMT"));
+        long t = now.toEpochSecond();
+        long interval = 60 * 15;
+        for (Appointment a: db.getAppointmentsByWeek()) {
+            long start = a.getStart().toEpochSecond();
+            if (t + interval > start && a.getStart().isAfter(now)) {
+                Alert alert = new Alert(AlertType.WARNING);
+                alert.setTitle("Upcoming Appointment");
+                alert.setHeaderText(null);
+                alert.setContentText("You have an appointment within 15 minutes!");
+                alert.showAndWait();
+            }
+        }
+    }
 }

@@ -7,6 +7,7 @@ package wgugzp1;
 
 import java.net.URL;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -19,7 +20,6 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -129,12 +129,12 @@ public class AppointmentController implements Initializable {
             txtURL.setText(a.getURL());
             tblCustomer.getSelectionModel().select(a.getCustomer());
             
-            dateStart.setValue(a.getStart().toLocalDate());
-            LocalTime t = a.getStart().toLocalTime();
+            dateStart.setValue(a.getStart().withZoneSameInstant(ZoneId.systemDefault()).toLocalDate());
+            LocalTime t = a.getStart().withZoneSameInstant(ZoneId.systemDefault()).toLocalTime();
             int hour = t.getHour() % 12;
             if (hour == 0) hour = 12;
             int minute = t.getMinute() % 60;
-            String period = (t.getHour() - 12 > 0)? "PM": "AM";
+            String period = (t.getHour() - 12 >= 0)? "PM": "AM";
             String h = "" + hour;
             String m = "" + minute;
             if (h.length() == 1) h = "0" + h;
@@ -143,12 +143,12 @@ public class AppointmentController implements Initializable {
             minuteStart.setValue(m);
             periodStart.setValue(period);
             
-            dateEnd.setValue(a.getEnd().toLocalDate());
-            t = a.getEnd().toLocalTime();
+            dateEnd.setValue(a.getEnd().withZoneSameInstant(ZoneId.systemDefault()).toLocalDate());
+            t = a.getEnd().withZoneSameInstant(ZoneId.systemDefault()).toLocalTime();
             hour = t.getHour() % 12;
             if (hour == 0) hour = 12;
             minute = t.getMinute() % 60;
-            period = (hour - 12 > 0)? "PM": "AM";
+            period = (t.getHour() - 12 >= 0)? "PM": "AM";
             h = "" + hour;
             m = "" + minute;
             if (h.length() == 1) h = "0" + h;
@@ -171,24 +171,32 @@ public class AppointmentController implements Initializable {
         
         // set up start and end ZonedDateTime's
         int hour = Integer.parseInt((String) hourStart.getValue());
-        if (((String) periodStart.getValue()).equals("PM")) {
+        LocalDate s = dateStart.getValue();
+        if (((String) periodStart.getValue()).equals("PM") && hour != 12) {
             hour += 12;
-            if (hour >= 24) hour -= 24;
+            if (hour >= 24) {
+                hour -= 24;
+                s.plusDays(1);
+            }
         }
         int minute = Integer.parseInt((String) minuteStart.getValue());
         LocalTime time = LocalTime.of(hour, minute);
-        LocalDateTime localDateTime = LocalDateTime.of(dateStart.getValue(), time);
-        ZonedDateTime start = ZonedDateTime.of(localDateTime, ZoneId.of("GMT"));
+        LocalDateTime localDateTime = LocalDateTime.of(s, time);
+        ZonedDateTime start = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
         
         hour = Integer.parseInt((String) hourEnd.getValue());
-        if (((String) periodEnd.getValue()).equals("PM")) {
+        LocalDate e = dateEnd.getValue();
+        if (((String) periodEnd.getValue()).equals("PM") && hour != 12) {
             hour += 12;
-            if (hour >= 24) hour -= 24;
+            if (hour >= 24) {
+                hour -= 24;
+                e.plusDays(1);
+            }
         }
         minute = Integer.parseInt((String) minuteEnd.getValue());
         time = LocalTime.of(hour, minute);
-        LocalDateTime localDateTime2 = LocalDateTime.of(dateEnd.getValue(), time);
-        ZonedDateTime end = ZonedDateTime.of(localDateTime2, ZoneId.of("GMT"));
+        LocalDateTime localDateTime2 = LocalDateTime.of(e, time);
+        ZonedDateTime end = ZonedDateTime.of(localDateTime2, ZoneId.systemDefault());
         
         // Set up contact
         if (contact.isEmpty()) contact = db.getLoggedInUser().getUserName();

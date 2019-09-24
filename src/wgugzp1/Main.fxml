@@ -126,9 +126,9 @@
         <menus>
             <Menu mnemonicParsing="false" text="Reports">
               <items>
-                  <MenuItem mnemonicParsing="false" text="Consultant Schedules" />
-                <MenuItem mnemonicParsing="false" text="Number of Appointments" />
-                  <MenuItem mnemonicParsing="false" text="User Activity" />
+                  <MenuItem mnemonicParsing="false" onAction="#getConsultantSchedule" text="Consultant Schedules" />
+                <MenuItem mnemonicParsing="false" onAction="#getApptsTypesPerMonth" text="Number of Appointments" />
+                  <MenuItem mnemonicParsing="false" onAction="#getUserActivity" text="User Activity" />
               </items>
             </Menu>
         </menus>
