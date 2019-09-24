@@ -1,0 +1,26 @@
+
+- Daylight Savings time
+- Create a log-in form that can determine the user’s location and translate log-in and error control messages (e.g., “The username and password did not match.”) into two languages.
+- link to the specific customer record in the database.
+-  Write exception controls to prevent each of the following. You may use the same mechanism of exception control more than once, but you must incorporate at least  two different mechanisms of exception control.
+
+•   scheduling an appointment outside business hours
+
+•   scheduling overlapping appointments
+
+•   entering nonexistent or invalid customer data
+
+•   entering an incorrect username and password
+-  justifying the use of each lambda expression with an in-line comment.
+- Provide the ability to generate each  of the following reports:
+
+•   number of appointment types by month
+
+•   the schedule for each consultant
+
+•   one additional report of your choice
+
+Done:
+- Provide the ability to track user activity by recording timestamps for user log-ins in a .txt file. Each new record should be appended to the log file, if the file already exists.
+- order calendar by date
+- Write code to provide an alert if there is an appointment within 15 minutes of the user’s log-in.
