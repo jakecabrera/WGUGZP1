@@ -20,6 +20,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
@@ -51,6 +52,8 @@ public class MainController implements Initializable {
     private ToggleGroup window;
     @FXML
     private RadioButton rdBtnWeek;
+    @FXML
+    private CheckBox chkDst;
 
     /**
      * Initializes the controller class.
@@ -100,15 +103,12 @@ public class MainController implements Initializable {
         tblAppointments.getColumns().add(columnContact);
         tblAppointments.getColumns().add(columnTitle);
         
-        tblAppointments.getItems().addAll(getAppointmentWindow());
-        tblAppointments.getSortOrder().add(columnStart);
-        tblAppointments.sort();
+        updateTblAppointments();
         
         window.selectedToggleProperty().addListener((obsVal, oldVal, newVal) -> {
             db.setOffsetMonths(0);
             db.setOffsetWeeks(0);
-            tblAppointments.getItems().clear();
-            tblAppointments.getItems().addAll(getAppointmentWindow());
+            updateTblAppointments();
         });
         
         sldTimeZone.valueProperty().addListener((obsVal, oldVal, newVal) -> {
@@ -122,8 +122,7 @@ public class MainController implements Initializable {
             String m = (("" + minutes).length() == 1)? "0" + minutes: "" + minutes;
             lblOffset.setText("" + h + ":" + m);
             Appointment.setOffset((int) (newVal.doubleValue() * 60 * 60));
-            tblAppointments.getItems().clear();
-            tblAppointments.getItems().addAll(getAppointmentWindow());
+            updateTblAppointments();
         });
         sldTimeZone.setValue(((double) ZonedDateTime.now().getOffset().getTotalSeconds())/(60.0 * 60.0));
         checkAppointmentIn15();
@@ -193,8 +192,7 @@ public class MainController implements Initializable {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.showAndWait();
-            tblAppointments.getItems().clear();
-            tblAppointments.getItems().addAll(getAppointmentWindow());
+            updateTblAppointments();
         } catch (IOException iOException) {
             iOException.printStackTrace();
         }
@@ -212,8 +210,7 @@ public class MainController implements Initializable {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.showAndWait();
-            tblAppointments.getItems().clear();
-            tblAppointments.getItems().addAll(getAppointmentWindow());
+            updateTblAppointments();
         } catch (IOException iOException) {
             iOException.printStackTrace();
         }
@@ -287,5 +284,16 @@ public class MainController implements Initializable {
                 alert.showAndWait();
             }
         }
+    }
+
+    @FXML
+    private void daylightSavingsTime(ActionEvent event) {
+        Appointment.setApplyDST(chkDst.selectedProperty().get());
+        updateTblAppointments();
+    }
+    
+    private void updateTblAppointments() {
+        tblAppointments.getItems().clear();
+        tblAppointments.getItems().addAll(getAppointmentWindow());
     }
 }

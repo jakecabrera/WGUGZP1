@@ -30,6 +30,7 @@ public class Appointment extends Record {
     private ZonedDateTime start;
     private ZonedDateTime end;
     private static int offset = 0;
+    private static boolean applyDST = false;
     
     public Appointment(Customer customer, User user, String title, String description, String location, String contact, String type, String url, ZonedDateTime start, ZonedDateTime end) {
         setCustomer(customer);
@@ -281,6 +282,21 @@ public class Appointment extends Record {
     }
     
     public static int getOffset() {
+        if (getApplyDST()) return offset + (60 * 60);
         return offset;
+    }
+
+    /**
+     * @return the applyDST
+     */
+    public static boolean getApplyDST() {
+        return applyDST;
+    }
+
+    /**
+     * @param aApplyDST the applyDST to set
+     */
+    public static void setApplyDST(boolean aApplyDST) {
+        applyDST = aApplyDST;
     }
 }
