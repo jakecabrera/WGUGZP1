@@ -32,6 +32,11 @@ public class Appointment extends Record {
     private static int offset = 0;
     private static boolean applyDST = false;
     
+    public Appointment(ZonedDateTime start, ZonedDateTime end) {
+        setStart(start);
+        setEnd(end);
+    }
+    
     public Appointment(Customer customer, User user, String title, String description, String location, String contact, String type, String url, ZonedDateTime start, ZonedDateTime end) {
         setCustomer(customer);
         setUser(user);

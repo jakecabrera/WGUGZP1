@@ -250,6 +250,17 @@ public class Database {
     }
     
     public void deleteCustomer(Customer customer) throws SQLException {
+        // First check if the customer has any appointments
+        List<Appointment> list = new ArrayList<>(getAppointments().values());
+        list.removeIf(x -> x.getCustomer() != customer);
+        list.forEach((appointment) -> {
+            try {
+                this.deleteAppointment(appointment);
+            } catch (SQLException ex) {
+                Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        
         Connection db = Schedule.getDbInstance();
         Statement s = db.createStatement();
         s.executeUpdate("delete from customer where customerId = " + customer.getIdAsInt());
@@ -408,5 +419,17 @@ public class Database {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    public boolean overlapExists(Appointment a, List<Appointment> appointments) {
+        List<Appointment> list = new ArrayList<>(appointments);
+        list.removeIf(x -> a.getEnd().isBefore(x.getStart()));
+        list.removeIf(x -> a.getStart().isAfter(x.getEnd()));
+        return !list.isEmpty();
+    }
+    
+    public boolean overlapExists(ZonedDateTime s, ZonedDateTime e, List<Appointment> list) {
+        Appointment a = new Appointment(s, e);
+        return overlapExists(a, list);
     }
 }

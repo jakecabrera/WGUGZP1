@@ -191,6 +191,7 @@ public class MainController implements Initializable {
             System.out.println(db.getCustomers().size());
             tblCustomers.getItems().clear();
             tblCustomers.getItems().addAll(db.getCustomers().values());
+            updateTblAppointments();
         }
     }
 

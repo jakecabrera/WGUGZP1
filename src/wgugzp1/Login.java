@@ -21,6 +21,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -71,6 +73,11 @@ public class Login implements Initializable {
     
     public void failLogin() throws SQLException{
         Database.getInstance().recordLogIn(txtUsername.getText(), false);
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Failed Login");
+        alert.setHeaderText(null);
+        alert.setContentText("You have entered an invalid Username or Password.");
+        alert.showAndWait();
         System.out.println("Fail");
     }
     

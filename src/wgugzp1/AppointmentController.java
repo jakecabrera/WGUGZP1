@@ -20,6 +20,8 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -201,6 +203,39 @@ public class AppointmentController implements Initializable {
         // Set up contact
         if (contact.isEmpty()) contact = db.getLoggedInUser().getUserName();
         
+        // Exception handling
+        
+        // Check if this appointment overlaps with existing appointments
+        List<Appointment> list = new ArrayList<>(db.getAppointments().values());
+        list.removeIf(x -> x == getAppointmentInProcess());
+        if (db.overlapExists(start, end, list)) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Appointment Overlap");
+            alert.setHeaderText(null);
+            alert.setContentText("The time and date specified for this appointment "
+                    + "overlaps another appointment that already exists.");
+            alert.showAndWait();
+            return;
+        }
+        
+        // Check if this appointment is within business hours
+        int openHour = 9;
+        int closeHour = 17;
+        boolean startsDuringBusiness = start.getHour() < closeHour && start.getHour() >= openHour;
+        boolean endsDuringBusiness = (end.getHour() < closeHour || (end.getHour() == closeHour 
+                && end.getMinute() == 0)) && end.getHour() >= openHour; 
+        if (!(startsDuringBusiness && endsDuringBusiness)) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Outside of Business Hours");
+            alert.setHeaderText(null);
+            alert.setContentText("The time specified for this appointment "
+                    + "is outside of business hours. Please schedule the appointment "
+                    + "between 9am and 5pm local time.");
+            alert.showAndWait();
+            return;
+        }
+        
+        // Update or save appointment
         if (isNewAppointment()) {
             appointmentInProcess = new Appointment(customer, db.getLoggedInUser(), title, description, location, contact, type, url, start, end);
             db.addAppointment(appointmentInProcess);
@@ -255,5 +290,4 @@ public class AppointmentController implements Initializable {
     public static void setAppointmentInProcess(Appointment aAppointmentInProcess) {
         appointmentInProcess = aAppointmentInProcess;
     }
-    
 }
