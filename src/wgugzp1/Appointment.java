@@ -299,4 +299,12 @@ public class Appointment extends Record {
     public static void setApplyDST(boolean aApplyDST) {
         applyDST = aApplyDST;
     }
+    
+    public String toConsultantString() {
+        String output = "";
+        output += "Contact: [" + getContact() + "] ";
+        output += "Start: " + getStart().format(DateTimeFormatter.ofPattern("MM/dd/yyyy - HH:mm"));
+        output += " End: " + getEnd().format(DateTimeFormatter.ofPattern("MM/dd/yyyy - HH:mm"));
+        return output;
+    }
 }

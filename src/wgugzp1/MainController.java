@@ -5,13 +5,26 @@
  */
 package wgugzp1;
 
+import java.awt.Desktop;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -260,14 +273,66 @@ public class MainController implements Initializable {
 
     @FXML
     private void getConsultantSchedule(ActionEvent event) {
+        Path consultantSchedule = Paths.get("consultantSchedule.txt");
+        try (BufferedWriter writer = Files.newBufferedWriter(consultantSchedule, Charset.forName("UTF-16"))) {
+            List<Appointment> list = new ArrayList<>(db.getAppointments().values());
+            list.sort((a1, a2) -> a1.getContact().compareTo(a2.getContact()));
+            StringBuilder s = new StringBuilder("");
+            list.forEach(a -> s.append(a.toConsultantString() + System.lineSeparator()));
+            writer.write(s.toString());
+            Desktop desktop = Desktop.getDesktop();
+            desktop.open(consultantSchedule.toFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void getApptsTypesPerMonth(ActionEvent event) {
+        Path consultantSchedule = Paths.get("typesPerMonth.txt");
+        try (BufferedWriter writer = Files.newBufferedWriter(consultantSchedule, Charset.forName("UTF-16"))) {
+            // get count of types
+            List<Appointment> list = new ArrayList<>(db.getAppointments().values());
+            
+            // separate appointments by month
+            Map<String, List<Appointment>> appointmentsByMonth = new HashMap();
+            list.forEach(a -> {
+                String month = a.getStart().format(DateTimeFormatter.ofPattern("MM/yyyy"));
+                if (appointmentsByMonth.containsKey(month)) appointmentsByMonth.get(month).add(a);
+                else appointmentsByMonth.put(month, new ArrayList(Arrays.asList(a)));
+            });
+            
+            // create appointment type string per month
+            StringBuilder s = new StringBuilder("");
+            for (String k: appointmentsByMonth.keySet()) {
+                s.append(k + ":");
+                List<Appointment> appointments = appointmentsByMonth.get(k);
+                Map<String, Integer> typeCount = new HashMap();
+                appointments.forEach(a -> {
+                    if (!typeCount.containsKey(a.getType())) typeCount.put(a.getType(), 1);
+                    else typeCount.put(a.getType(), typeCount.get(a.getType()) + 1);
+                });
+                typeCount.forEach((key, val) -> s.append(System.lineSeparator() + "    " + key + ": " + val));
+                s.append(System.lineSeparator());
+            }
+            
+            writer.write(s.toString());
+            Desktop desktop = Desktop.getDesktop();
+            desktop.open(consultantSchedule.toFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void getUserActivity(ActionEvent event) {
+        Path loginFile = Paths.get("login.txt");
+        Desktop desktop = Desktop.getDesktop();
+        try {
+            desktop.open(loginFile.toFile());
+        } catch (IOException ex) {
+            Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     private void checkAppointmentIn15() {

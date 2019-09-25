@@ -134,7 +134,7 @@
               <items>
                   <MenuItem mnemonicParsing="false" onAction="#getConsultantSchedule" text="Consultant Schedules" />
                 <MenuItem mnemonicParsing="false" onAction="#getApptsTypesPerMonth" text="Number of Appointments" />
-                  <MenuItem mnemonicParsing="false" onAction="#getUserActivity" text="User Activity" />
+                  <MenuItem mnemonicParsing="false" onAction="#getUserActivity" text="Login Attempts" />
               </items>
             </Menu>
         </menus>
