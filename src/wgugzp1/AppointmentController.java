@@ -30,6 +30,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -257,10 +258,15 @@ public class AppointmentController implements Initializable {
 
     @FXML
     private void cancelAppointment(ActionEvent event) {
+        ((Stage) txtLocation.getScene().getWindow()).close();
     }
 
     @FXML
     private void searchCustomer(ActionEvent event) {
+        List<Customer> list = new ArrayList<>(db.getCustomers().values());
+        list.removeIf(x -> !x.getName().contains(txtCustomer.getText()));
+        tblCustomer.getItems().clear();
+        tblCustomer.getItems().addAll(list);
     }
 
     /**
