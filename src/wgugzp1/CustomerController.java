@@ -11,6 +11,8 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -91,6 +93,12 @@ public class CustomerController implements Initializable {
             c.setName(name);
             c.update();
         }
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Customer Saved");
+        alert.setHeaderText(null);
+        alert.setContentText("The customer you input has been saved.");
+        alert.showAndWait();
+        ((Stage) txtName.getScene().getWindow()).close();
     }
 
     @FXML

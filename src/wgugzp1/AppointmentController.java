@@ -253,7 +253,12 @@ public class AppointmentController implements Initializable {
             a.setEnd(end);
             a.update();
         }
-        
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Appointment Saved");
+        alert.setHeaderText(null);
+        alert.setContentText("The appointment you input has been saved.");
+        alert.showAndWait();
+        ((Stage) txtLocation.getScene().getWindow()).close();
     }
 
     @FXML
