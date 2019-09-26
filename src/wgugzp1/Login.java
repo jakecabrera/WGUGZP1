@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -23,6 +24,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -40,10 +42,17 @@ public class Login implements Initializable {
     private PasswordField txtPassword;
     @FXML
     private VBox vbox;
+    @FXML
+    private Button btnLogin;
+    ResourceBundle r = ResourceBundle.getBundle("wgugzp1.resources.Login", Locale.getDefault());
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // This is so that now text field is automatically focused when loaded
+        txtUsername.setPromptText(r.getString("username"));
+        txtPassword.setPromptText(r.getString("password"));
+        btnLogin.setText(r.getString("login"));
+        
         final BooleanProperty firstTime = new SimpleBooleanProperty(true);
         txtUsername.focusedProperty().addListener((observable, oldValue, newValue) -> { // Lambda here is slightly shorter than making a new changeListener
             if(newValue && firstTime.get()) {
@@ -53,6 +62,7 @@ public class Login implements Initializable {
         });
     }    
     
+    @FXML
     public void login(ActionEvent event) throws SQLException {
         // Get all users with the username
         Connection db = Schedule.getDbInstance();
@@ -74,9 +84,9 @@ public class Login implements Initializable {
     public void failLogin() throws SQLException{
         Database.getInstance().recordLogIn(txtUsername.getText(), false);
         Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle("Failed Login");
+        alert.setTitle(r.getString("fail"));
         alert.setHeaderText(null);
-        alert.setContentText("You have entered an invalid Username or Password.");
+        alert.setContentText(r.getString("failMessage"));
         alert.showAndWait();
         System.out.println("Fail");
     }

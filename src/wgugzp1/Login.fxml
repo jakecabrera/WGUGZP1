@@ -30,7 +30,7 @@
             </HBox>
             <HBox alignment="CENTER">
                <children>
-                  <Button mnemonicParsing="false" onAction="#login" text="Log In" />
+                  <Button fx:id="btnLogin" mnemonicParsing="false" onAction="#login" text="Log In" />
                </children>
             </HBox>
          </children>
