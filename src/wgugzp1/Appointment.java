@@ -248,10 +248,10 @@ public class Appointment extends Record {
         s.setString(5, getContact());
         s.setString(6, getType());
         s.setString(7, getURL());
-        s.setString(8, "" + getStart().withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
-        System.out.println("End DAte: " + getEnd().withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
-        s.setString(9, "" + getEnd().withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
-        s.setString(10, "" + ZonedDateTime.now().withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
+        s.setString(8, "" + getStart().withZoneSameInstant(ZoneId.of("GMT")).toLocalDateTime());
+        System.out.println("End DAte: " + getEnd().withZoneSameInstant(ZoneId.of("GMT")).toLocalDateTime());
+        s.setString(9, "" + getEnd().withZoneSameInstant(ZoneId.of("GMT")).toLocalDateTime());
+        s.setString(10, "" + ZonedDateTime.now().withZoneSameInstant(ZoneId.of("GMT")).toLocalDateTime());
         s.setString(11, Database.getInstance().getLoggedInUser().getUserName());
         
         s.setInt(12, getId().orElseThrow(RuntimeException::new));
@@ -266,7 +266,7 @@ public class Appointment extends Record {
         String output = "";
         ZoneOffset offset = ZoneOffset.ofTotalSeconds(getOffset());
         ZoneId zone = ZoneId.ofOffset("", offset);
-        ZonedDateTime t = getStart().withZoneSameInstant(zone);
+        ZonedDateTime t = getStart().withZoneSameInstant(ZoneId.systemDefault());
         output += t.format(DateTimeFormatter.ofPattern("MM/dd/yyyy - HH:mm"));
         return output;
     }

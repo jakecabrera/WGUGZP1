@@ -54,10 +54,6 @@ public class MainController implements Initializable {
     private TableView tblCustomers;
     @FXML
     private TableView tblAppointments;
-    @FXML
-    private Slider sldTimeZone;
-    @FXML
-    private Label lblOffset;
     private Database db;
     @FXML
     private RadioButton rdbtnMonth;
@@ -65,8 +61,6 @@ public class MainController implements Initializable {
     private ToggleGroup window;
     @FXML
     private RadioButton rdBtnWeek;
-    @FXML
-    private CheckBox chkDst;
 
     /**
      * Initializes the controller class.
@@ -123,21 +117,6 @@ public class MainController implements Initializable {
             db.setOffsetWeeks(0);
             updateTblAppointments();
         });
-        
-        sldTimeZone.valueProperty().addListener((obsVal, oldVal, newVal) -> { // Lambda here is slightly shorter than making a new changeListener
-            if (sldTimeZone.valueChangingProperty().getValue()) return;
-            int hours = (int) newVal.doubleValue();
-            int modifier = (newVal.doubleValue() < 0)? -1: 1;
-            hours = hours * modifier;
-            String h = (("" + hours).length() == 1)? "0" + hours: "" + hours;
-            h = (modifier < 0)? "-" + h: "+" + h;
-            int minutes = (int)((newVal.doubleValue() - (hours * modifier)) * 60) * modifier;
-            String m = (("" + minutes).length() == 1)? "0" + minutes: "" + minutes;
-            lblOffset.setText("" + h + ":" + m);
-            Appointment.setOffset((int) (newVal.doubleValue() * 60 * 60));
-            updateTblAppointments();
-        });
-        sldTimeZone.setValue(((double) ZonedDateTime.now().getOffset().getTotalSeconds())/(60.0 * 60.0));
         checkAppointmentIn15();
     }    
 
@@ -337,7 +316,7 @@ public class MainController implements Initializable {
     }
     
     private void checkAppointmentIn15() {
-        ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("GMT"));
+        ZonedDateTime now = ZonedDateTime.now();
         long t = now.toEpochSecond();
         long interval = 60 * 15;
         for (Appointment a: db.getAppointmentsByWeek()) {
@@ -350,12 +329,6 @@ public class MainController implements Initializable {
                 alert.showAndWait();
             }
         }
-    }
-
-    @FXML
-    private void daylightSavingsTime(ActionEvent event) {
-        Appointment.setApplyDST(chkDst.selectedProperty().get());
-        updateTblAppointments();
     }
     
     private void updateTblAppointments() {

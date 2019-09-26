@@ -148,8 +148,8 @@ public class Database {
             String contact = r.getString("contact");
             String type = r.getString("type");
             String url = r.getString("url");
-            ZonedDateTime start = ZonedDateTime.ofInstant(r.getTimestamp("start").toInstant(), ZoneId.of("GMT"));
-            ZonedDateTime end = ZonedDateTime.ofInstant(r.getTimestamp("end").toInstant(), ZoneId.of("GMT"));
+            ZonedDateTime start = ZonedDateTime.of(r.getTimestamp("start").toLocalDateTime(), ZoneId.of("GMT"));
+            ZonedDateTime end = ZonedDateTime.of(r.getTimestamp("end").toLocalDateTime(), ZoneId.of("GMT"));
             
             Appointment appointment = new Appointment(
                     getCustomers().get(customerId),
@@ -335,9 +335,9 @@ public class Database {
         Stream<Appointment> stream = list.stream();
         ZoneOffset offset = ZoneOffset.ofTotalSeconds(Appointment.getOffset());
         ZoneId zone = ZoneId.ofOffset("", offset);
-        ZonedDateTime t = ZonedDateTime.now().withZoneSameInstant(zone).plusMonths(getOffsetMonths());
+        ZonedDateTime t = ZonedDateTime.now().plusMonths(getOffsetMonths());
         list.removeIf(x -> { // Using a lambda with List.removeIf is way convenient compared to how much I'd have to write if I didn't use a lambda
-            ZonedDateTime start = x.getStart().withZoneSameInstant(zone);
+            ZonedDateTime start = x.getStart().withZoneSameInstant(ZoneId.systemDefault());
             boolean sameYear = start.getYear() == t.getYear();
             boolean sameMonth = start.getMonth() == t.getMonth();
             return !sameYear || !sameMonth;
@@ -352,10 +352,10 @@ public class Database {
         List<Appointment> list = new ArrayList(getAppointments().values());
         ZoneOffset offset = ZoneOffset.ofTotalSeconds(Appointment.getOffset());
         ZoneId zone = ZoneId.ofOffset("", offset);
-        ZonedDateTime t = ZonedDateTime.now().withZoneSameInstant(zone).plusWeeks(getOffsetWeeks());
+        ZonedDateTime t = ZonedDateTime.now().plusWeeks(getOffsetWeeks());
         WeekFields w = WeekFields.of(Locale.getDefault());
         list.removeIf(x -> { // Using a lambda with List.removeIf is way convenient compared to how much I'd have to write if I didn't use a lambda
-            ZonedDateTime start = x.getStart().withZoneSameInstant(zone);
+            ZonedDateTime start = x.getStart().withZoneSameInstant(ZoneId.systemDefault());
             boolean sameYear = start.getYear() == t.getYear();
             boolean sameWeek = start.get(w.weekOfWeekBasedYear()) == t.get(w.weekOfWeekBasedYear());
             return !sameYear || !sameWeek;

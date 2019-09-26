@@ -236,6 +236,10 @@ public class AppointmentController implements Initializable {
             return;
         }
         
+        // start and end need to be in GMT for saving
+        end = end.withZoneSameInstant(ZoneId.of("GMT"));
+        start = start.withZoneSameInstant(ZoneId.of("GMT"));
+        
         // Update or save appointment
         if (isNewAppointment()) {
             appointmentInProcess = new Appointment(customer, db.getLoggedInUser(), title, description, location, contact, type, url, start, end);

@@ -75,6 +75,15 @@ public class CustomerController implements Initializable {
         String phone = txtPhone.getText();
         String postalCode = txtPostalCode.getText();
         
+        if (name.isEmpty() || address1.isEmpty() || city.isEmpty() || country.isEmpty() || phone.isEmpty() || postalCode.isEmpty()) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Invalid Input");
+            alert.setHeaderText(null);
+            alert.setContentText("Please fill all fields. Address2 is optional.");
+            alert.showAndWait();
+            return;
+        }
+        
         Country inputCountry = new Country(country);
         db.addCountry(inputCountry);
         

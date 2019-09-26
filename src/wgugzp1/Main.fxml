@@ -2,13 +2,11 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.BorderPane?>
@@ -98,11 +96,6 @@
                      </HBox.margin>
                   </RadioButton>
                   <Button mnemonicParsing="false" onAction="#nextWindow" text="Next" />
-                  <CheckBox fx:id="chkDst" mnemonicParsing="false" onAction="#daylightSavingsTime" text="Daylight Savings Time">
-                     <HBox.margin>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </HBox.margin>
-                  </CheckBox>
                </children>
             </HBox>
             <HBox alignment="TOP_CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
@@ -140,13 +133,4 @@
         </menus>
       </MenuBar>
    </top>
-   <right>
-      <HBox alignment="CENTER">
-         <children>
-            <Slider fx:id="sldTimeZone" blockIncrement="1.0" majorTickUnit="2.0" max="14.0" min="-14.0" orientation="VERTICAL" showTickLabels="true" snapToTicks="true" />
-            <Label text="GMT " />
-            <Label fx:id="lblOffset" prefWidth="50.0" text="+01:00" />
-         </children>
-      </HBox>
-   </right>
 </BorderPane>
