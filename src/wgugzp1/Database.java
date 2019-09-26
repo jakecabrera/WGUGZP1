@@ -252,8 +252,8 @@ public class Database {
     public void deleteCustomer(Customer customer) throws SQLException {
         // First check if the customer has any appointments
         List<Appointment> list = new ArrayList<>(getAppointments().values());
-        list.removeIf(x -> x.getCustomer() != customer);
-        list.forEach((appointment) -> {
+        list.removeIf(x -> x.getCustomer() != customer); // Using a lambda with List.removeIf is way convenient compared to how much I'd have to write if I didn't use a lambda
+        list.forEach((appointment) -> { // This would've been a one liner if it weren't for the try-catch block. 
             try {
                 this.deleteAppointment(appointment);
             } catch (SQLException ex) {
@@ -336,13 +336,13 @@ public class Database {
         ZoneOffset offset = ZoneOffset.ofTotalSeconds(Appointment.getOffset());
         ZoneId zone = ZoneId.ofOffset("", offset);
         ZonedDateTime t = ZonedDateTime.now().withZoneSameInstant(zone).plusMonths(getOffsetMonths());
-        list.removeIf(x -> {
+        list.removeIf(x -> { // Using a lambda with List.removeIf is way convenient compared to how much I'd have to write if I didn't use a lambda
             ZonedDateTime start = x.getStart().withZoneSameInstant(zone);
             boolean sameYear = start.getYear() == t.getYear();
             boolean sameMonth = start.getMonth() == t.getMonth();
             return !sameYear || !sameMonth;
         });
-        list.sort((a1, a2) -> {
+        list.sort((a1, a2) -> { // This is a lot easier to use a lambda here than to create a comparator and pass it
             return a1.getStart().toLocalDateTime().compareTo(a2.getStart().toLocalDateTime());
         });
         return list;
@@ -354,13 +354,13 @@ public class Database {
         ZoneId zone = ZoneId.ofOffset("", offset);
         ZonedDateTime t = ZonedDateTime.now().withZoneSameInstant(zone).plusWeeks(getOffsetWeeks());
         WeekFields w = WeekFields.of(Locale.getDefault());
-        list.removeIf(x -> {
+        list.removeIf(x -> { // Using a lambda with List.removeIf is way convenient compared to how much I'd have to write if I didn't use a lambda
             ZonedDateTime start = x.getStart().withZoneSameInstant(zone);
             boolean sameYear = start.getYear() == t.getYear();
             boolean sameWeek = start.get(w.weekOfWeekBasedYear()) == t.get(w.weekOfWeekBasedYear());
             return !sameYear || !sameWeek;
         });
-        list.sort((a1, a2) -> {
+        list.sort((a1, a2) -> { // This is a lot easier to use a lambda here than to create a comparator and pass it
             return a1.getStart().toLocalDateTime().compareTo(a2.getStart().toLocalDateTime());
         });
         
@@ -423,8 +423,8 @@ public class Database {
     
     public boolean overlapExists(Appointment a, List<Appointment> appointments) {
         List<Appointment> list = new ArrayList<>(appointments);
-        list.removeIf(x -> a.getEnd().isBefore(x.getStart()));
-        list.removeIf(x -> a.getStart().isAfter(x.getEnd()));
+        list.removeIf(x -> a.getEnd().isBefore(x.getStart())); // Using a lambda with List.removeIf is way convenient compared to how much I'd have to write if I didn't use a lambda
+        list.removeIf(x -> a.getStart().isAfter(x.getEnd())); // Using a lambda with List.removeIf is way convenient compared to how much I'd have to write if I didn't use a lambda
         return !list.isEmpty();
     }
     

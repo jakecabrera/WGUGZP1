@@ -45,7 +45,7 @@ public class Login implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // This is so that now text field is automatically focused when loaded
         final BooleanProperty firstTime = new SimpleBooleanProperty(true);
-        txtUsername.focusedProperty().addListener((observable, oldValue, newValue) -> {
+        txtUsername.focusedProperty().addListener((observable, oldValue, newValue) -> { // Lambda here is slightly shorter than making a new changeListener
             if(newValue && firstTime.get()) {
                 vbox.requestFocus();
                 firstTime.setValue(false);                

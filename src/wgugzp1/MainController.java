@@ -118,13 +118,13 @@ public class MainController implements Initializable {
         
         updateTblAppointments();
         
-        window.selectedToggleProperty().addListener((obsVal, oldVal, newVal) -> {
+        window.selectedToggleProperty().addListener((obsVal, oldVal, newVal) -> { // Lambda here is slightly shorter than making a new changeListener
             db.setOffsetMonths(0);
             db.setOffsetWeeks(0);
             updateTblAppointments();
         });
         
-        sldTimeZone.valueProperty().addListener((obsVal, oldVal, newVal) -> {
+        sldTimeZone.valueProperty().addListener((obsVal, oldVal, newVal) -> { // Lambda here is slightly shorter than making a new changeListener
             if (sldTimeZone.valueChangingProperty().getValue()) return;
             int hours = (int) newVal.doubleValue();
             int modifier = (newVal.doubleValue() < 0)? -1: 1;
@@ -277,9 +277,9 @@ public class MainController implements Initializable {
         Path consultantSchedule = Paths.get("consultantSchedule.txt");
         try (BufferedWriter writer = Files.newBufferedWriter(consultantSchedule, Charset.forName("UTF-16"))) {
             List<Appointment> list = new ArrayList<>(db.getAppointments().values());
-            list.sort((a1, a2) -> a1.getContact().compareTo(a2.getContact()));
+            list.sort((a1, a2) -> a1.getContact().compareTo(a2.getContact())); // This is a lot easier to use a lambda here than to create a comparator and pass it
             StringBuilder s = new StringBuilder("");
-            list.forEach(a -> s.append(a.toConsultantString() + System.lineSeparator()));
+            list.forEach(a -> s.append(a.toConsultantString() + System.lineSeparator())); // Lambda makes this a one liner
             writer.write(s.toString());
             Desktop desktop = Desktop.getDesktop();
             desktop.open(consultantSchedule.toFile());
@@ -297,7 +297,7 @@ public class MainController implements Initializable {
             
             // separate appointments by month
             Map<String, List<Appointment>> appointmentsByMonth = new HashMap();
-            list.forEach(a -> {
+            list.forEach(a -> { // Lambda here is slightly shorter than a for each loop by like 2 lines
                 String month = a.getStart().format(DateTimeFormatter.ofPattern("MM/yyyy"));
                 if (appointmentsByMonth.containsKey(month)) appointmentsByMonth.get(month).add(a);
                 else appointmentsByMonth.put(month, new ArrayList(Arrays.asList(a)));
@@ -309,11 +309,11 @@ public class MainController implements Initializable {
                 s.append(k + ":");
                 List<Appointment> appointments = appointmentsByMonth.get(k);
                 Map<String, Integer> typeCount = new HashMap();
-                appointments.forEach(a -> {
+                appointments.forEach(a -> { // Lambda here is slightly shorter than a for each loop by like 2 lines
                     if (!typeCount.containsKey(a.getType())) typeCount.put(a.getType(), 1);
                     else typeCount.put(a.getType(), typeCount.get(a.getType()) + 1);
                 });
-                typeCount.forEach((key, val) -> s.append(System.lineSeparator() + "    " + key + ": " + val));
+                typeCount.forEach((key, val) -> s.append(System.lineSeparator() + "    " + key + ": " + val)); // Lambda makes this a one liner
                 s.append(System.lineSeparator());
             }
             

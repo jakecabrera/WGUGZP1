@@ -1,5 +1,4 @@
 - Create a log-in form that can determine the user’s location and translate log-in and error control messages (e.g., “The username and password did not match.”) into two languages.
--  justifying the use of each lambda expression with an in-line comment.
 
 Done:
 - Provide the ability to track user activity by recording timestamps for user log-ins in a .txt file. Each new record should be appended to the log file, if the file already exists.
@@ -24,3 +23,4 @@ Done:
 •   entering nonexistent or invalid customer data
 
 •   entering an incorrect username and password
+- justifying the use of each lambda expression with an in-line comment.

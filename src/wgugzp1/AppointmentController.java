@@ -208,7 +208,7 @@ public class AppointmentController implements Initializable {
         
         // Check if this appointment overlaps with existing appointments
         List<Appointment> list = new ArrayList<>(db.getAppointments().values());
-        list.removeIf(x -> x == getAppointmentInProcess());
+        list.removeIf(x -> x == getAppointmentInProcess()); // This lambda is so much easier than writing it out without one
         if (db.overlapExists(start, end, list)) {
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("Appointment Overlap");
@@ -264,7 +264,7 @@ public class AppointmentController implements Initializable {
     @FXML
     private void searchCustomer(ActionEvent event) {
         List<Customer> list = new ArrayList<>(db.getCustomers().values());
-        list.removeIf(x -> !x.getName().contains(txtCustomer.getText()));
+        list.removeIf(x -> !x.getName().contains(txtCustomer.getText())); // Using a lambda with List.removeIf is way convenient compared to how much I'd have to write if I didn't use a lambda
         tblCustomer.getItems().clear();
         tblCustomer.getItems().addAll(list);
     }
